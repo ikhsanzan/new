@@ -5,20 +5,13 @@ include_once '../core/core.php';
 include '../function/produk_function.php';
 require '../vendor/autoload.php';
 
-$dataproduk = query("SELECT * FROM `orders` ORDER BY TIME DESC");
-
-// $cari = $_GET["keyword"];   
-
-$bulan = $_GET['bulan'];
-$tanggal = $_GET['tanggal'];
-$tahun = $_GET['tahun'];
-$cari = "$bulan-$tanggal-$tahun";
-
-
-if (isset($_POST["cari-data"])) {
-    $data = query("SELECT * FROM orders where like '%$cari%'");
-
+if (isset($_GET['tanggal']) && isset($_GET['bulan']) && isset($_GET['tahun'])) {
+    $tanggal = "{$_GET['tahun']}-{$_GET['bulan']}-{$_GET['tanggal']} ";
+    $dataproduk = query("SELECT * FROM `orders` WHERE time LIKE '%$tanggal%'");
+} else {
+    $dataproduk = query("SELECT * FROM `orders` ORDER BY TIME DESC");
 }
+
 
 ?>
 <!DOCTYPE html>
@@ -40,6 +33,7 @@ if (isset($_POST["cari-data"])) {
     body {
         background-color: #f2f2f2;
     }
+
     .container-fluid.mt-4 {
         background-color: #f2f2f2;
     }
@@ -73,77 +67,50 @@ if (isset($_POST["cari-data"])) {
     <!-- Content -->
     <h4 class="display-5 pt-4 text-center" style="font-family: 'Open Sans', sans-serif; font-weight: bold;"> Halaman Data Pemesanan Pelanggan</h4>
 
-
-    <select name="" id="">
-
-        <?php foreach ($dataproduk as $produk) : ?>
-
-            <option><?= $produk["time"]; ?></option>
-
-                    <?php endforeach; ?>
-
-    </select>
-    <br>
-    <select name="" id="bulan_vaksin" onchange="leaveChange()">
-
-             <option> Vaksin Baru Lahir</option>
-             <option> Vaksin Baru Lahir</option>
-             <option> Vaksin Baru Lahir</option>
-    </select>
-
-    <form action="">
-        <input type="text" id="jenis_vaksin" value="">
-    </form>
-
-    <script>
-        function leaveChange() {
-            if (document.getElementById("bulan_vaksin").value === "Vaksin Baru Lahir") {
-
-                document.getElementById("keyword").value = "Hepatitis B dan Polio";
-
-            } else if (document.getElementById("bulan_vaksin").value === "Vaksin Bulan Ke-1") {
-
-                document.getElementById("jenis_vaksin").value = "Hepatitis B";
-
-            }else{}
-        }
-    </script>
-
-
-    <form action="get" >
-        
-        <select name="bulan" id="">
-            <option selected>Pilih Bulan</option>
-            <option value="">02</option>
-            <option value="">03</option>
-        </select>
-        <select name="tanggal" id=""> 
-            <option selected>Pilih Tanggal</option>
-            <option value="">10</option>
-            <option value="">11</option>
-        </select>
-        <select name="tahun" id="">Pilih Tahun
-            <option selected>Pilih Tahun</option>
-            <option value="">2019</option>
-            <option value="">2020</option>
-        </select>
-        <button type="submit" class="btn btn-primary btn-block" name="cari-data">Submit</button>
-    </form>
-
-    <p> <?php foreach ($dataproduk as $data) : ?>
-            <?= $data["$time"]; ?>
-        <?php endforeach; ?>
-    </p>
-
     <div class="container-fluid mt-4">
+        <form action="" method="get">
+            <div class="form-group">
+                <div class="row pl-3">
+                    <select name="tanggal" id="tanggal" class="form-control form-control-sm col-1">
+                        <option value="">Tanggal</option>
+                        <?php
+                        for ($i = 1; $i <= 31; $i++) :
+                        ?>
+                            <option value="<?= str_pad($i, 2, 0, STR_PAD_LEFT) ?>"><?= str_pad($i, 2, 0, STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <select name="bulan" id="bulan" class="form-control form-control-sm col-1 ml-3">
+                        <option value="">Bulan</option>
+                        <?php
+                        for ($i = 1; $i <= 12; $i++) :
+                        ?>
+                            <option value="<?= str_pad($i, 2, 0, STR_PAD_LEFT) ?>"><?= str_pad($i, 2, 0, STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <select name="tahun" id="tahun" class="form-control form-control-sm col-1 ml-3">
+                        <option value="">Tahun</option>
+                        <?php
+                        for ($i = 2015; $i <= date('Y'); $i++) :
+                        ?>
+                            <option value="<?= str_pad($i, 2, 0, STR_PAD_LEFT) ?>"><?= str_pad($i, 2, 0, STR_PAD_LEFT) ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="row pl-3">
+                    <button class="btn btn-primary mt-2 col-1" type="submit">Cari</button>
+                </div>
+            </div>
+        </form>
+
         <form action="" method="post">
             <input name="keyword" id="keyword" autofocus autocomplete="off" class="form-control mb-3" type="text" placeholder="Cari Data Produk">
         </form>
+
         <a href="cetak.php">
-        <button type="button" class="btn btn-primary mb-3">
-        <i class="fa fa-print" aria-hidden="true"></i> Cetak Laporan</button>
+            <button type="button" class="btn btn-primary mb-3">
+                <i class="fa fa-print" aria-hidden="true"></i> Cetak Laporan</button>
         </a>
-       
+
 
         <div class="table-responsive">
             <div id="container">
